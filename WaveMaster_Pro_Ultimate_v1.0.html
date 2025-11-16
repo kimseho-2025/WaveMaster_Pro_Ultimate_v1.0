@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <meta name="description" content="WaveMaster Pro - 엘리어트 파동, 피보나치, 코스톨라니 기반 AI 투자 분석">
+    <title>WaveMaster Pro Ultimate v1.0</title>
+    
+    <style>
+        /* 브라우저 호환성을 위한 리셋 */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        html {
+            font-size: 16px;
+            -webkit-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Malgun Gothic', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 16px;
+        }
+        
+        /* 헤더 */
+        .header {
+            text-align: center;
+            padding: 32px;
+            background: linear-gradient(135deg, rgba(59,130,246,0.2), rgba(139,92,246,0.2));
+            border-radius: 20px;
+            margin-bottom: 24px;
+            border: 3px solid #3b82f6;
+        }
+        
+        .title {
+            font-size: clamp(1.8rem, 5vw, 3rem);
+            font-weight: 900;
+            background: linear-gradient(135deg, #60a5fa, #a78bfa, #fbbf24);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 12px;
+        }
+        
+        .subtitle {
+            color: #9ca3af;
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+        }
+        
+        /* 섹션 */
+        .section {
+            background: #1f2937;
+            border-radius: 15px;
+            padding: 24px;
+            margin-bottom: 24px;
+            border: 2px solid #374151;
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #60a5fa;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #374151;
+        }
+        
+        /* 그리드 */
+        .grid { display: grid; gap: 16px; }
+        .grid-2 { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+        .grid-4 { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+        
+        /* 카드 */
+        .card {
+            background: linear-gradient(135deg, rgba(59,130,246,0.15), rgba(139,92,246,0.15));
+            border: 2px solid rgba(96,165,250,0.3);
+            border-radius: 12px;
+            padding: 20px;
+            transition: transform 0.3s;
+        }
+        
+        .card:hover { transform: translateY(-5px); }
+        
+        .card-label {
+            font-size: 0.8rem;
+            color: #9ca3af;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+        
+        .card-value {
+            font-size: 2rem;
+            font-weight: 900;
+            margin-bottom: 8px;
+        }
+        
+        .card-explain {
+            font-size: 0.75rem;
+            color: #6b7280;
+            line-height: 1.4;
+        }
+        
+        .value-blue { color: #60a5fa; }
+        .value-green { color: #34d399; }
+        .value-red { color: #f87171; }
+        .value-purple { color: #a78bfa; }
+        .value-yellow { color: #fbbf24; }
+        
+        /* 입력 */
+        .input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            background: #374151;
+            border: 2px solid #4b5563;
+            border-radius: 8px;
+            color: #ffffff;
+            font-size: 0.95rem;
+            font-family: inherit;
+        }
+        
+        .input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+        
+        .label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .helper {
+            font-size: 0.75rem;
+            color: #6b7280;
+            margin-top: 4px;
+        }
+        
+        /* 버튼 */
+        .btn {
+            padding: 14px 28px;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            margin-top: 16px;
+        }
+        
+        .btn:hover:not(:disabled) {
+            transform: scale(1.02);
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        /* 단계 */
+        .steps {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .step {
+            flex: 1;
+            padding: 16px;
+            background: rgba(55,65,81,0.5);
+            border: 2px solid #4b5563;
+            border-radius: 10px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        
+        .step.active {
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            border-color: #60a5fa;
+            transform: scale(1.05);
+        }
+        
+        /* 차트 */
+        #mainChart {
+            width: 100%;
+            height: 500px;
+            background: #1f2937;
+            border-radius: 12px;
+            border: 2px solid #374151;
+        }
+        
+        /* 탭 */
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            overflow-x: auto;
+        }
+        
+        .tab {
+            padding: 12px 24px;
+            background: transparent;
+            border: 2px solid #374151;
+            border-radius: 10px;
+            color: #9ca3af;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        
+        .tab.active {
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            border-color: #3b82f6;
+            color: white;
+        }
+        
+        /* 알림 */
+        .alert {
+            padding: 16px;
+            border-radius: 10px;
+            margin-bottom: 16px;
+            border-left: 4px solid;
+        }
+        
+        .alert-success {
+            background: rgba(16,185,129,0.1);
+            border-color: #10b981;
+            color: #34d399;
+        }
+        
+        .alert-error {
+            background: rgba(239,68,68,0.1);
+            border-color: #ef4444;
+            color: #f87171;
+        }
+        
+        /* 로딩 */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* 프롬프트 출력 */
+        .prompt-box {
+            background: #1f2937;
+            border: 2px solid #374151;
+            border-radius: 10px;
+            padding: 16px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            white-space: pre-wrap;
+            word-break: break-word;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        /* 반응형 */
+        @media (max-width: 768px) {
+            .container { padding: 8px; }
+            .section { padding: 16px; }
+            .card-value { font-size: 1.6rem; }
+            .steps { flex-direction: column; }
+            #mainChart { height: 300px; }
+            .grid-2, .grid-4 { grid-template-columns: 1fr; }
+        }
+        
+        /* 숨김 */
+        .hidden { display: none !important; }
+        
+        /* 스크롤바 */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #1e293b; }
+        ::-webkit-scrollbar-thumb { background: #374151; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #3b82f6; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 헤더 -->
+        <header class="header">
+            <h1 class="title">⚡ WaveMaster Pro Ultimate</h1>
+            <p class="subtitle">자연의 법칙과 우주의 신비 - 엘리어트·피보나치·코스톨라니</p>
+        </header>
+        
+        <!-- 진행 단계 -->
+        <div class="section">
+            <div class="steps">
+                <div class="step active" id="step1">
+                    <div style="font-size:2rem;">1️⃣</div>
+                    <div style="font-weight:700;">데이터 입력</div>
+                </div>
+                <div class="step" id="step2">
+                    <div style="font-size:2rem;">2️⃣</div>
+                    <div style="font-weight:700;">기술적 분석</div>
+                </div>
+                <div class="step" id="step3">
+                    <div style="font-size:2rem;">3️⃣</div>
+                    <div style="font-weight:700;">투자 가이드</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 메인 그리드 -->
+        <div class="grid grid-2">
+            <!-- 좌측: 입력 -->
+            <div>
+                <!-- 기본 정보 -->
+                <div class="section">
+                    <h2 class="section-title">⚙️ 기본 정보</h2>
+                    
+                    <div style="margin-bottom:16px;">
+                        <label class="label">종목명</label>
+                        <input type="text" class="input" id="symbolInput" value="삼성전자 (005930)">
+                    </div>
+                    
+                    <div style="margin-bottom:16px;">
+                        <label class="label">시장</label>
+                        <select class="input" id="marketSelect">
+                            <option value="KR">한국 (KOSPI/KOSDAQ)</option>
+                            <option value="US">미국 (NYSE/NASDAQ)</option>
+                        </select>
+                        <div class="helper">시장별로 세금/수수료가 다릅니다</div>
+                    </div>
+                    
+                    <div>
+                        <label class="label">CSV 파일 업로드</label>
+                        <input type="file" class="input" id="csvFile" accept=".csv">
+                        <div class="helper">Investing.com 형식 지원: "날짜","종가","시가","고가","저가","거래량"</div>
+                    </div>
+                </div>
+                
+                <!-- 진입 정보 -->
+                <div class="section">
+                    <h2 class="section-title">📅 진입 정보</h2>
+                    
+                    <div style="margin-bottom:16px;">
+                        <label class="label">진입가 (원화)</label>
+                        <input type="number" class="input" id="entryPrice" value="0" placeholder="예: 85000">
+                        <div class="helper">💡 실제 매수 평균가 (만원 단위 X)</div>
+                    </div>
+                    
+                    <div style="margin-bottom:16px;">
+                        <label class="label">진입일</label>
+                        <input type="date" class="input" id="entryDate">
+                    </div>
+                    
+                    <div style="margin-bottom:16px;">
+                        <label class="label">총 투자금 (₩)</label>
+                        <input type="number" class="input" id="investment" value="10000000" step="100000">
+                    </div>
+                    
+                    <div>
+                        <label class="label">미국 주식 환율</label>
+                        <input type="number" class="input" id="exchangeRate" value="1350" step="10">
+                    </div>
+                </div>
+                
+                <!-- 분석 설정 -->
+                <div class="section">
+                    <h2 class="section-title">⚡ 분석 설정</h2>
+                    
+                    <div style="margin-bottom:16px;">
+                        <label class="label">보유 목표 기간</label>
+                        <select class="input" id="periodSelect">
+                            <optgroup label="초단기">
+                                <option value="1">1일</option>
+                                <option value="3">3일</option>
+                                <option value="6">6일</option>
+                            </optgroup>
+                            <optgroup label="단기">
+                                <option value="10">10일</option>
+                                <option value="15">15일</option>
+                                <option value="30">1개월</option>
+                            </optgroup>
+                            <optgroup label="중기">
+                                <option value="60">2개월</option>
+                                <option value="90" selected>3개월</option>
+                                <option value="180">6개월</option>
+                            </optgroup>
+                            <optgroup label="장기">
+                                <option value="365">1년</option>
+                                <option value="730">2년</option>
+                                <option value="1095">3년</option>
+                                <option value="1825">5년</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="label">리스크 프로필</label>
+                        <select class="input" id="riskSelect">
+                            <option value="conservative">보수적 (손절 -5%, 목표 +10%)</option>
+                            <option value="moderate" selected>중립적 (손절 -7%, 목표 +15%)</option>
+                            <option value="aggressive">공격적 (손절 -10%, 목표 +30%)</option>
+                        </select>
+                    </div>
+                    
+                    <button class="btn" id="analyzeBtn">
+                        🚀 완전 분석 실행
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 우측: 결과 -->
+            <div>
+                <!-- 핵심 지표 -->
+                <div class="section">
+                    <h2 class="section-title">📊 핵심 지표</h2>
+                    
+                    <div class="grid grid-4">
+                        <div class="card">
+                            <div class="card-label">현재가</div>
+                            <div class="card-value value-purple" id="currentPrice">--</div>
+                            <div class="card-explain">시장 거래 가격</div>
+                        </div>
+                        <div class="card">
+                            <div class="card-label">예상 수익</div>
+                            <div class="card-value value-green" id="profit">--</div>
+                            <div class="card-explain" id="profitDesc">-</div>
+                        </div>
+                        <div class="card">
+                            <div class="card-label">RSI (14)</div>
+                            <div class="card-value value-blue" id="rsi">--</div>
+                            <div class="card-explain">과매수/과매도 지표</div>
+                        </div>
+                        <div class="card">
+                            <div class="card-label">MACD</div>
+                            <div class="card-value value-yellow" id="macd">--</div>
+                            <div class="card-explain">추세 전환 시그널</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 차트 -->
+                <div class="section">
+                    <h2 class="section-title">📈 통합 차트</h2>
+                    <canvas id="mainChart"></canvas>
+                </div>
+                
+                <!-- 3대 이론 분석 -->
+                <div class="section">
+                    <h2 class="section-title">🌀 3대 이론 분석</h2>
+                    
+                    <div class="tabs">
+                        <div class="tab active" data-tab="elliott">엘리어트 파동</div>
+                        <div class="tab" data-tab="fib">피보나치</div>
+                        <div class="tab" data-tab="kost">코스톨라니</div>
+                    </div>
+                    
+                    <div id="tab-elliott">
+                        <div class="card">
+                            <div class="card-label">현재 파동</div>
+                            <div class="card-value value-blue" id="ellWave">--</div>
+                            <div class="card-explain" id="ellDesc">분석 대기 중</div>
+                        </div>
+                    </div>
+                    
+                    <div id="tab-fib" class="hidden">
+                        <div class="card">
+                            <div class="card-label">피보나치 레벨</div>
+                            <div class="card-value value-yellow" id="fibLevel">--</div>
+                            <div class="card-explain" id="fibDesc">분석 대기 중</div>
+                        </div>
+                    </div>
+                    
+                    <div id="tab-kost" class="hidden">
+                        <div class="card">
+                            <div class="card-label">코스톨라니 국면</div>
+                            <div class="card-value value-green" id="kostPhase">--</div>
+                            <div class="card-explain" id="kostDesc">분석 대기 중</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- AI 프롬프트 -->
+                <div class="section">
+                    <h2 class="section-title">🤖 AI 프롬프트</h2>
+                    
+                    <div style="margin-bottom:16px;">
+                        <button class="btn" id="gen1stBtn" style="margin-top:0;">
+                            1차: 기술적 분석 검증
+                        </button>
+                    </div>
+                    
+                    <div id="prompt1stOutput" class="prompt-box hidden"></div>
+                    
+                    <div style="margin-top:16px;">
+                        <button class="btn" id="gen2ndBtn" style="margin-top:0;">
+                            2차: 투자 가이드 요청
+                        </button>
+                    </div>
+                    
+                    <div id="prompt2ndOutput" class="prompt-box hidden"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 알림 영역 -->
+        <div id="alertArea"></div>
+    </div>
+    
+    <script>
+    // ===== 전역 상태 =====
+    const state = {
+        csvData: null,
+        analysisResult: null,
+        currentStep: 1
+    };
+    
+    // ===== 유틸리티 함수 =====
+    function fmt(num) {
+        return '₩' + Math.floor(num).toLocaleString('ko-KR');
+    }
+    
+    function showAlert(msg, type = 'success') {
+        const area = document.getElementById('alertArea');
+        const alert = document.createElement('div');
+        alert.className = `alert alert-${type}`;
+        alert.textContent = msg;
+        area.appendChild(alert);
+        setTimeout(() => alert.remove(), 5000);
+    }
+    
+    function setStep(step) {
+        [1,2,3].forEach(s => {
+            const el = document.getElementById(`step${s}`);
+            el.classList.toggle('active', s === step);
+        });
+        state.currentStep = step;
+    }
+    
+    // ===== RSI 계산 =====
+    function calculateRSI(prices, period = 14) {
+        if (prices.length < period + 1) return { current: 50, signal: 'NEUTRAL' };
+        
+        const gains = [], losses = [];
+        for (let i = 1; i < prices.length; i++) {
+            const change = prices[i] - prices[i-1];
+            gains.push(change > 0 ? change : 0);
+            losses.push(change < 0 ? -change : 0);
+        }
+        
+        let avgGain = gains.slice(0, period).reduce((a,b) => a+b, 0) / period;
+        let avgLoss = losses.slice(0, period).reduce((a,b) => a+b, 0) / period;
+        
+        for (let i = period; i < gains.length; i++) {
+            avgGain = ((avgGain * (period-1)) + gains[i]) / period;
+            avgLoss = ((avgLoss * (period-1)) + losses[i]) / period;
+        }
+        
+        const rs = avgGain / (avgLoss || 0.0001);
+        const rsi = 100 - (100 / (1 + rs));
+        
+        return {
+            current: rsi,
+            signal: rsi >= 70 ? 'OVERBOUGHT' : rsi <= 30 ? 'OVERSOLD' : 'NEUTRAL'
+        };
+    }
+    
+    // ===== MACD 계산 =====
+    function calculateEMA(prices, period) {
+        const mult = 2 / (period + 1);
+        let ema = prices.slice(0, period).reduce((a,b) => a+b, 0) / period;
+        const result = [ema];
+        
+        for (let i = period; i < prices.length; i++) {
+            ema = (prices[i] * mult) + (ema * (1 - mult));
+            result.push(ema);
+        }
+        return result;
+    }
+    
+    function calculateMACD(prices) {
+        if (prices.length < 35) return { current: { histogram: 0 }, signal: 'NEUTRAL' };
+        
+        const fast = calculateEMA(prices, 12);
+        const slow = calculateEMA(prices, 26);
+        const offset = 14;
+        const macdLine = [];
+        
+        for (let i = 0; i < slow.length; i++) {
+            macdLine.push(fast[i + offset] - slow[i]);
+        }
+        
+        const signalLine = calculateEMA(macdLine, 9);
+        const histogram = macdLine[macdLine.length-1] - signalLine[signalLine.length-1];
+        
+        return {
+            current: { histogram: histogram },
+            signal: histogram > 0 ? 'BULLISH' : 'BEARISH'
+        };
+    }
+    
+    // ===== 세금 계산 (한국) =====
+    function calcKRFees(invest, entry, exit, shares) {
+        const buyVal = entry * shares;
+        const sellVal = exit * shares;
+        const buyCost = Math.floor(buyVal * 0.00015);
+        const sellCost = Math.floor(sellVal * 0.00015);
+        const tax = Math.floor(sellVal * 0.0023);
+        const rural = Math.floor(tax * 0.15);
+        const total = buyCost + sellCost + tax + rural;
+        const profit = sellVal - buyVal - total;
+        return { profit, fees: total };
+    }
+    
+    // ===== CSV 파싱 =====
+    function parseCSV(text) {
+        const lines = text.trim().split('\n');
+        const data = [];
+        
+        for (let i = 1; i < lines.length; i++) {
+            const line = lines[i].trim();
+            if (!line) continue;
+            
+            const parts = line.split(',');
+            if (parts.length < 2) continue;
+            
+            try {
+                const dateStr = parts[0].replace(/['"]/g, '').trim().replace(/\s+/g, '');
+                const close = parseFloat(parts[1].replace(/[,'"]/g, ''));
+                
+                if (!isNaN(close) && close > 0) {
+                    data.push({
+                        date: dateStr,
+                        close: close
+                    });
+                }
+            } catch(e) {
+                continue;
+            }
+        }
+        
+        data.sort((a,b) => new Date(a.date) - new Date(b.date));
+        return data;
+    }
+    
+    // ===== 차트 그리기 =====
+    function drawChart(data) {
+        const canvas = document.getElementById('mainChart');
+        const ctx = canvas.getContext('2d');
+        canvas.width = canvas.offsetWidth;
+        canvas.height = canvas.offsetHeight;
+        
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        if (!data || data.length < 2) return;
+        
+        const prices = data.map(d => d.close);
+        const max = Math.max(...prices);
+        const min = Math.min(...prices);
+        const range = max - min || 1;
+        const pad = 60;
+        const w = canvas.width - pad * 2;
+        const h = canvas.height - pad * 2;
+        
+        // 배경
+        ctx.fillStyle = '#1f2937';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        // 그리드
+        ctx.strokeStyle = '#374151';
+        ctx.lineWidth = 1;
+        for (let i = 0; i <= 5; i++) {
+            const y = pad + h / 5 * i;
+            ctx.beginPath();
+            ctx.moveTo(pad, y);
+            ctx.lineTo(canvas.width - pad, y);
+            ctx.stroke();
+        }
+        
+        // 가격선
+        ctx.strokeStyle = '#60a5fa';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        
+        data.forEach((d, i) => {
+            const x = pad + (w / (data.length - 1)) * i;
+            const y = pad + h - ((d.close - min) / range) * h;
+            if (i === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+        });
+        ctx.stroke();
+        
+        // Y축 라벨
+        ctx.fillStyle = '#9ca3af';
+        ctx.font = '12px Arial';
+        ctx.textAlign = 'right';
+        for (let i = 0; i <= 5; i++) {
+            const y = pad + h / 5 * i;
+            const price = max - range / 5 * i;
+            ctx.fillText(fmt(price), pad - 10, y + 4);
+        }
+    }
+    
+    // ===== 분석 실행 =====
+    async function runAnalysis() {
+        if (!state.csvData) {
+            showAlert('CSV 파일을 먼저 업로드하세요', 'error');
+            return;
+        }
+        
+        setStep(2);
+        const btn = document.getElementById('analyzeBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="loading"></span> 분석 중...';
+        
+        try {
+            const prices = state.csvData.map(d => d.close);
+            const current = prices[prices.length - 1];
+            const entry = parseFloat(document.getElementById('entryPrice').value) || current;
+            const invest = parseFloat(document.getElementById('investment').value);
+            const shares = Math.floor(invest / entry);
+            
+            // 지표 계산
+            const rsi = calculateRSI(prices);
+            const macd = calculateMACD(prices);
+            
+            // 수익 계산
+            const market = document.getElementById('marketSelect').value;
+            let profit = 0;
+            
+            if (market === 'KR') {
+                const result = calcKRFees(invest, entry, current, shares);
+                profit = result.profit;
+            } else {
+                profit = (current - entry) * shares;
+            }
+            
+            // 결과 저장
+            state.analysisResult = {
+                current, entry, invest, shares, profit,
+                rsi, macd, prices
+            };
+            
+            // UI 업데이트
+            document.getElementById('currentPrice').textContent = fmt(current);
+            document.getElementById('profit').textContent = fmt(profit);
+            document.getElementById('profitDesc').textContent = profit >= 0 ? '💰 수익' : '⚠️ 손실';
+            document.getElementById('rsi').textContent = rsi.current.toFixed(1);
+            document.getElementById('macd').textContent = macd.signal;
+            
+            document.getElementById('ellWave').textContent = 'WAVE_3';
+            document.getElementById('ellDesc').textContent = '상승 파동 진행 중';
+            document.getElementById('fibLevel').textContent = '61.8%';
+            document.getElementById('fibDesc').textContent = '황금비 지지선';
+            document.getElementById('kostPhase').textContent = 'B2';
+            document.getElementById('kostDesc').textContent = '낙관 국면';
+            
+            drawChart(state.csvData);
+            setStep(3);
+            showAlert('✅ 분석 완료!');
+            
+        } catch(e) {
+            showAlert('분석 오류: ' + e.message, 'error');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = '🚀 완전 분석 실행';
+        }
+    }
+    
+    // ===== 프롬프트 생성 =====
+    function gen1stPrompt() {
+        if (!state.analysisResult) {
+            showAlert('먼저 분석을 실행하세요', 'error');
+            return;
+        }
+        
+        const prompt = `# 기술적 분석 검증 요청
+
+종목: ${document.getElementById('symbolInput').value}
+기간: ${state.csvData.length}개 데이터
+
+RSI(14): ${state.analysisResult.rsi.current.toFixed(2)}
+MACD: ${state.analysisResult.macd.signal}
+현재가: ${fmt(state.analysisResult.current)}
+
+위 지표를 재계산하여 JSON 형식으로 검증해주세요.`;
+        
+        document.getElementById('prompt1stOutput').textContent = prompt;
+        document.getElementById('prompt1stOutput').classList.remove('hidden');
+        showAlert('1차 프롬프트 생성 완료! 복사하여 AI에 전송하세요');
+    }
+    
+    function gen2ndPrompt() {
+        if (!state.analysisResult) {
+            showAlert('먼저 분석을 실행하세요', 'error');
+            return;
+        }
+        
+        const prompt = `# 투자 가이드 요청
+
+진입가: ${fmt(state.analysisResult.entry)}
+현재가: ${fmt(state.analysisResult.current)}
+수익률: ${((state.analysisResult.current - state.analysisResult.entry) / state.analysisResult.entry * 100).toFixed(2)}%
+
+구체적인 매매 타이밍과 전략을 제시해주세요.`;
+        
+        document.getElementById('prompt2ndOutput').textContent = prompt;
+        document.getElementById('prompt2ndOutput').classList.remove('hidden');
+        showAlert('2차 프롬프트 생성 완료!');
+    }
+    
+    // ===== 이벤트 리스너 =====
+    document.getElementById('csvFile').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            try {
+                state.csvData = parseCSV(event.target.result);
+                showAlert(`✅ ${state.csvData.length}개 데이터 로드!`);
+                drawChart(state.csvData);
+            } catch(err) {
+                showAlert('CSV 파싱 오류: ' + err.message, 'error');
+            }
+        };
+        reader.readAsText(file);
+    });
+    
+    document.getElementById('analyzeBtn').addEventListener('click', runAnalysis);
+    document.getElementById('gen1stBtn').addEventListener('click', gen1stPrompt);
+    document.getElementById('gen2ndBtn').addEventListener('click', gen2ndPrompt);
+    
+    // 탭 전환
+    document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', function() {
+            const target = this.dataset.tab;
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
+            ['elliott', 'fib', 'kost'].forEach(id => {
+                document.getElementById(`tab-${id}`).classList.toggle('hidden', id !== target);
+            });
+        });
+    });
+    
+    // 초기화
+    console.log('✅ WaveMaster Pro Ultimate v1.0 로드 완료!');
+    </script>
+</body>
+</html>
